@@ -110,6 +110,6 @@ void createMesh() {
     }
 }
 
-struct sockaddr_in getSelfAddress(int i) {
+struct sockaddr_in getAddress(int i) {
     return nodes[i];
 };
