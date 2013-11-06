@@ -2,20 +2,20 @@
  */
 
 /* Copyright (C) 1990-2, RSA Data Security, Inc. Created 1990. All
-rights reserved.
+   rights reserved.
 
-RSA Data Security, Inc. makes no representations concerning either
-the merchantability of this software or the suitability of this
-software for any particular purpose. It is provided "as is"
-without express or implied warranty of any kind.
+   RSA Data Security, Inc. makes no representations concerning either
+   the merchantability of this software or the suitability of this
+   software for any particular purpose. It is provided "as is"
+   without express or implied warranty of any kind.
 
-These notices must be retained in any copies of any part of this
-documentation and/or software.
- */
+   These notices must be retained in any copies of any part of this
+   documentation and/or software.
+*/
 
 /* The following makes MD default to MD5 if it has not already been
-  defined with C compiler flags.
- */
+   defined with C compiler flags.
+*/
 
 #include <stdio.h>
 #include <time.h>
@@ -31,7 +31,7 @@ documentation and/or software.
 static void MDString PROTO_LIST ((char *));
 static void MDTimeTrial PROTO_LIST ((void));
 static void MDTestSuite PROTO_LIST ((void));
-static unsigned char[16] MDFile PROTO_LIST ((char *));
+static unsigned char* MDFile (char *, char *);
 static void MDFilter PROTO_LIST ((void));
 static void MDPrint PROTO_LIST ((unsigned char [16]));
 
@@ -150,29 +150,30 @@ static void MDPrint PROTO_LIST ((unsigned char [16]));
 
 /* Digests a file and prints the result.
  */
-static unsigned char[16] MDFile (filename)
-char *filename;
+static unsigned char* MDFile (filename, digest)
+     char *filename;
+     char *digest;
 {
   FILE *file;
   MD5_CTX context;
   int len;
-  unsigned char buffer[1024], digest[16];
+  unsigned char buffer[1024];
 
   if ((file = fopen (filename, "rb")) == NULL)
- printf ("%s can't be opened\n", filename);
+    printf ("%s can't be opened\n", filename);
 
   else {
- MDInit (&context);
- while (len = fread (buffer, 1, 1024, file))
-   MDUpdate (&context, buffer, len);
- MDFinal (digest, &context);
+    MDInit (&context);
+    while (len = fread (buffer, 1, 1024, file))
+      MDUpdate (&context, buffer, len);
+    MDFinal (digest, &context);
 
- fclose (file);
+    fclose (file);
 
- printf ("MD%d (%s) = ", 5, filename);
- MDPrint (digest);
- printf ("\n");
- return(digest);
+    printf ("MD%d (%s) = ", 5, filename);
+    MDPrint (digest);
+    printf ("\n");
+    return(digest);
   }
 }
 
@@ -186,7 +187,7 @@ static void MDFilter ()
 
   MDInit (&context);
   while (len = fread (buffer, 1, 16, stdin))
- MDUpdate (&context, buffer, len);
+    MDUpdate (&context, buffer, len);
   MDFinal (digest, &context);
 
   MDPrint (digest);
@@ -196,11 +197,11 @@ static void MDFilter ()
 /* Prints a message digest in hexadecimal.
  */
 static void MDPrint (digest)
-unsigned char digest[16];
+     unsigned char digest[16];
 {
 
   unsigned int i;
 
   for (i = 0; i < 16; i++)
- printf ("%02x", digest[i]);
+    printf ("%02x", digest[i]);
 }
