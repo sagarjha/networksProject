@@ -12,6 +12,9 @@
 struct sockaddr_in nodes[100];
 // number of nodes in the mesh
 int numNodes;
+
+char folder[100][50];
+
 // extracts the portno, ipaddress and folder name from the string
 void extract (char nodeInfo[500], int len, int* portNo, char IPAddress[50], char folder[50])
 {
@@ -86,9 +89,8 @@ void createMesh() {
         int portNo;
         // IP address and folder name for the node
         char IPAddress[50];
-        char folder[50];
         // extract portno, ipaddress and folder from the string
-        extract(nodeInfo, currentCount, &portNo, IPAddress, folder);
+        extract(nodeInfo, currentCount, &portNo, IPAddress, folder[numNodes-1]);
         // create a sockaddr_in structure
         struct sockaddr_in host;
         // set sin_family
@@ -112,4 +114,10 @@ void createMesh() {
 
 struct sockaddr_in getAddress(int i) {
     return nodes[i];
-};
+}
+
+char* getFolder(int i) {
+    return folder[i];
+}
+
+
