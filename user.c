@@ -8,12 +8,13 @@
 #include <string.h>
 #include <sys/errno.h>
 #include <sys/wait.h>
+#include <time.h>
 #include "mddriver.c"
 
 //!!!!confirm this later !!!!
 #define SELFADDRESS "127.0.0.101"
-#define PORTNUMUDP 4097
-#define PORTNUMTCP 3676
+#define PORTNUMUDP rand() % 10000 + 10000   
+#define PORTNUMTCP rand() % 10000 + 10000
 #define BUFFERSIZE 1500
 #ifndef ERESTART
 #define ERESTART EINTR
@@ -27,6 +28,7 @@ int findMap (unsigned char* MD5sum, char* fileName);
 
 int main(int argc, char* argv[])
 {
+  srand(time(NULL));
   FILE *fin;
   fin = fopen("name-md5sum-map","a+");
   // n is the number of nodes
@@ -77,8 +79,8 @@ int main(int argc, char* argv[])
     fclose (fin);
     return(0);
   }	
-  selfAddressUDP.sin_port = htons(PORTNUMUDP);
 
+  selfAddressUDP.sin_port = htons(PORTNUMUDP);
 
   if (bind(socketDUDP, (struct sockaddr *)&selfAddressUDP, sizeof(selfAddressUDP)) < 0) {
     printf("Bind failed\n");

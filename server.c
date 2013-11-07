@@ -9,8 +9,9 @@
 #include <sys/errno.h>
 #include <sys/wait.h>
 #include "config.h"
+#include "time.h"
 
-#define PORTNUMTCP 9315
+#define PORTNUMTCP rand() % 10000 + 10000 
 #define BUFFERSIZE 1500
 #ifndef ERESTART
 #define ERESTART EINTR
@@ -58,6 +59,7 @@ int main (int argc, char* argv[]) {
     if(bytesReceived < 0)
       {
 	printf("Socket Error, incoming message ignored\n");
+    continue;
       }
 
     // packet from user
@@ -88,7 +90,7 @@ int main (int argc, char* argv[]) {
       if(sendto(socketDUDP, buffer, bytesReceived, 0, (struct sockaddr *)&serverAddressUDP,  sizeof(serverAddressUDP)) < 0)
 	{
 	  printf("Sending Failed\n");
-	  return(-1);
+	  continue;
 	}
     }
   
@@ -97,6 +99,10 @@ int main (int argc, char* argv[]) {
       struct sockaddr_in remoteAddress;
       memcpy(&remoteAddress, buffer+17, sizeof(remoteAddress));
       int socketDTCP = setupConnection(remoteAddress, selfId);
+      if(socketDTCP < 0)
+      {
+          continue;
+      }
       if (option == '0') {
 	receiveFile (socketDTCP, MD5sum, getFolder(selfId));
 	printf("done\n");
@@ -193,6 +199,9 @@ int setupConnection(struct sockaddr_in remoteAddress, int selfId)
 {
   // printf("Server %s Port# %d \n", server, portNum);
   struct sockaddr_in myAddress = getAddress(selfId);
+  
+  // assigning a random port number
+  myAddress.sin_port = htons(PORTNUMTCP);
 
   /*create a TCP/IP socket*/
   int socketD;
@@ -307,6 +316,7 @@ int receiveFile(int socketD, unsigned char* MD5sum, char* outputFolder)
         currentBytesWritten += read(socketD, writeBuffer, 1500);
         fwrite(writeBuffer, 1, currentBytesWritten, outputFile);
         bytesWritten += currentBytesWritten;
+        printf("%d bytes written \n", bytesWritten);
     }
 
     fclose(outputFile);
