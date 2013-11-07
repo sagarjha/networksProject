@@ -51,6 +51,7 @@ int main (int argc, char* argv[]) {
   unsigned char buffer[BUFFERSIZE]; //messages are received in this buffer
   
   while (1) {
+    printf("Looping\n");
     int bytesReceived = recvfrom(socketDUDP, buffer, BUFFERSIZE, 0, (struct sockaddr *)&remoteAddress, &addrlength);
 
     //socket error
@@ -98,10 +99,12 @@ int main (int argc, char* argv[]) {
       int socketDTCP = setupConnection(remoteAddress, selfId);
       if (option == '0') {
 	receiveFile (socketDTCP, MD5sum, getFolder(selfId));
+	printf("done\n");
       }
     
       else if (option == '1') {
 	sendFile (socketDTCP, MD5sum, getFolder(selfId));
+	printf("done\n");
       }
 
       shutdown(socketDTCP, 2);
