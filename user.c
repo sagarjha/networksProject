@@ -9,10 +9,10 @@
 #include <sys/errno.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <errno.h>
 #include "mddriver.c"
 
 //!!!!confirm this later !!!!
-#define SELFADDRESS "127.0.0.101"
 #define PORTNUMUDP rand() % 10000 + 10000   
 #define PORTNUMTCP rand() % 10000 + 10000
 #define BUFFERSIZE 1500
@@ -31,9 +31,9 @@ int main(int argc, char* argv[])
   srand(time(NULL));
   /* FILE *fin; */
   /* fin = fopen("name-md5sum-map","a+"); */
-  if(argc != 6)
+  if(argc != 7)
     {
-      printf("Usage: <executable> <0 for send, 1 for retrieve> <md5sum> <directory ending with /> <remoteIP> <remote Port Number>\n");
+      printf("Usage: \n<executable> \n<0 for send, 1 for retrieve> \n<filename (only filename, not location) for send/md5sum for retrieve> \n<directory ending with/which is the location of the file to be sent or the location at which it needs to be retrieved> \n<remoteIP> \n<remote Port Number> \n<selfIP>\n");
       /* fclose (fin); */
       return -1;
     }
@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
   char* directory = argv[3];
   char* remoteIP = argv[4];
   int remotePortNum = atoi(argv[5]);
+  char *myAddress = argv[6]; // The address of the client
   //extracting only the file name 
   //!!!!! COMPLETE THIS !!!!!!
 
@@ -59,7 +60,6 @@ int main(int argc, char* argv[])
   int bytesReceived; //number of bytes read (of incoming data)
   int socketDUDP; //our socket descriptor
   int msgsRcvd; //number of messages received by the server since it started listening
-  char *myAddress = SELFADDRESS; // The address of the client
 
   /* Creating the UDP socket */
   if ((socketDUDP = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
       int sizeSent = 17 + sizeof(selfAddressTCP);
       if(sendto(socketDUDP, buffer, sizeSent, 0, (struct sockaddr *)&remoteAddress,  sizeof(remoteAddress)) < 0)
         {
-	  printf("Sending Failed\n");
+	  printf("Sending Failed, Error # %d\n", errno);
 	  // fclose (fin);
 	  return(-1);
         }
