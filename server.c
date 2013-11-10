@@ -31,6 +31,11 @@ int main (int argc, char* argv[]) {
 
   createMesh();
 
+  if (selfId >= numNodes) {
+    printf("server id out of range\n");
+    return -1;
+  }
+
   struct sockaddr_in selfAddressUDP = getAddress(selfId); //our UDP address
   
   int socketDUDP = 0;

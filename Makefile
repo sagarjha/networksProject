@@ -1,6 +1,5 @@
-md5	: mddriver.c md5c.o global.h
-	cc -o md5 mddriver.c md5c.o
-
-md5c.o	: md5c.c md5.h global.h
-	cc -c md5c.c
-
+all:	user server
+user:	user.c md5c.c mddriver.c
+	gcc user.c md5c.c mddriver.c -o user
+server:	server.c md5c.c mddriver.c
+	gcc server.c md5c.c mddriver.c -o server

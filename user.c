@@ -29,14 +29,12 @@ int findMap (unsigned char* MD5sum, char* fileName);
 int main(int argc, char* argv[])
 {
   srand(time(NULL));
-  FILE *fin;
-  fin = fopen("name-md5sum-map","a+");
-  // n is the number of nodes
-  int n = 7, i=0;
+  /* FILE *fin; */
+  /* fin = fopen("name-md5sum-map","a+"); */
   if(argc != 6)
     {
-      printf("Usage: <executable> <0 for send, 1 for retrieve> <filename> <directory ending with /> <remoteIP> <remote Port Number>\n");
-      fclose (fin);
+      printf("Usage: <executable> <0 for send, 1 for retrieve> <md5sum> <directory ending with /> <remoteIP> <remote Port Number>\n");
+      /* fclose (fin); */
       return -1;
     }
 
@@ -44,7 +42,7 @@ int main(int argc, char* argv[])
   if(option != 0 && option != 1)
     {
       printf("Invalid Option\n");
-      fclose (fin);
+      // fclose (fin);
       return -1;
     }
   char* fileName = argv[2];
@@ -67,7 +65,7 @@ int main(int argc, char* argv[])
   if ((socketDUDP = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
     {
       printf("cannot create socket\n");
-      fclose (fin);
+      // fclose (fin);
       return -1;
     }
 
@@ -76,7 +74,7 @@ int main(int argc, char* argv[])
   selfAddressUDP.sin_family = AF_INET;
   if (inet_aton(myAddress, &selfAddressUDP.sin_addr)==0) {
     printf("Address allocation failed\n");
-    fclose (fin);
+    // fclose (fin);
     return(0);
   }	
 
@@ -85,7 +83,7 @@ int main(int argc, char* argv[])
   if (bind(socketDUDP, (struct sockaddr *)&selfAddressUDP, sizeof(selfAddressUDP)) < 0) {
     printf("Bind failed\n");
     close(socketDUDP);
-    fclose (fin);
+    // fclose (fin);
     return 0;
   }
 
@@ -95,7 +93,7 @@ int main(int argc, char* argv[])
   remoteAddress.sin_port = htons(remotePortNum);
   if (inet_aton(remoteIP, &remoteAddress.sin_addr)==0) {
     fprintf(stderr, "inet_aton() failed\n");
-    fclose (fin);
+    // fclose (fin);
     return(-1);
   }
 
@@ -107,7 +105,7 @@ int main(int argc, char* argv[])
   if((socketDTCP = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
       printf("Socket Creation Unsuccessful\n");
-      fclose (fin);
+      // fclose (fin);
       return -1;
     }
 
@@ -122,7 +120,7 @@ int main(int argc, char* argv[])
   if (inet_aton(myAddress, &selfAddressTCP.sin_addr)==0) 
     {
       printf("Address allocation failed\n");
-      fclose (fin);
+      // fclose (fin);
       return(-1);
     }
   selfAddressTCP.sin_port = htons(PORTNUMTCP);
@@ -132,7 +130,7 @@ int main(int argc, char* argv[])
     {
       printf("Socket bind at user end unsuccessful\n");
       close(socketDTCP);
-      fclose (fin);
+      // fclose (fin);
       return -1;
     }
 
@@ -153,7 +151,7 @@ int main(int argc, char* argv[])
   if(listen(socketDTCP, 10) < 0)
     {
       printf("Listen Failed");
-      fclose (fin);
+      // fclose (fin);
       return (-1);
     }
 
@@ -180,17 +178,17 @@ int main(int argc, char* argv[])
       // find the md5 sum and store in the MD5sum array
       MDFile(fullFileName, MD5sum);
       
-            for (i = 0; i < fileNameSize; ++i) {
-	fputc(fileName[i], fin);
-      }
+      /* for (i = 0; i < fileNameSize; ++i) { */
+      /* 	fputc(fileName[i], fin); */
+      /* } */
 
-      fputc('\t', fin);
+      /* fputc('\t', fin); */
 
-      for (i = 0; i < 16; ++i) {
-	fputc( MD5sum[i], fin);
-      }
+      /* for (i = 0; i < 16; ++i) { */
+      /* 	fputc( MD5sum[i], fin); */
+      /* } */
 
-      fputc('\n', fin);
+      /* fputc('\n', fin); */
       
       buffer[0] = '0';
       memcpy(buffer + 1, MD5sum, 16);
@@ -199,7 +197,7 @@ int main(int argc, char* argv[])
       if(sendto(socketDUDP, buffer, sizeSent, 0, (struct sockaddr *)&remoteAddress,  sizeof(remoteAddress)) < 0)
         {
 	  printf("Sending Failed\n");
-	  fclose (fin);
+	  // fclose (fin);
 	  return(-1);
         }
       /*Waiting in an infinite loop*/
@@ -214,7 +212,7 @@ int main(int argc, char* argv[])
 	      if((errno != ECHILD) && (errno != ERESTART) && (errno != EINTR))
                 {
 		  printf("Accept Failed\n");
-		  fclose (fin);
+		  // fclose (fin);
 		  return (-1);
                 }
             }
@@ -230,14 +228,25 @@ int main(int argc, char* argv[])
 
   else if(option == 1)
     {
-      unsigned char MD5sum[16];
-      int ret = findMap (MD5sum, fileName);
-      if (ret == -1) {
-	printf("%s\n", fileName);
-	printf("file not found\n");
-	fclose (fin);
+      int i, size = getSize (fileName);
+      if (size != 32) {
+	printf("Invalid MD5sum\n");
 	return -1;
       }
+      
+      unsigned char MD5sum[16];
+      
+      for (i = 0; i < 16; ++i) {
+	MD5sum[i] = (fileName[2*i] - 48 - 39 * (fileName[2*i]/60))*16 + fileName[2*i+1] - 48 - 39 * (fileName[2*i+1]/60);
+      }
+      
+      /* int ret = findMap (MD5sum, fileName); */
+      /* if (ret == -1) { */
+      /* 	printf("%s\n", fileName); */
+      /* 	printf("file not found\n"); */
+      /* 	fclose (fin); */
+      /* 	return -1; */
+      /* } */
       buffer[0] = '1';
       memcpy(buffer + 1, MD5sum, 16);
       memcpy(buffer + 17, &selfAddressTCP, sizeof(selfAddressTCP));
@@ -245,7 +254,7 @@ int main(int argc, char* argv[])
       if(sendto(socketDUDP, buffer, sizeSent, 0, (struct sockaddr *)&remoteAddress,  sizeof(remoteAddress)) < 0)
         {
 	  printf("Sending Failed\n");
-	  fclose (fin);
+	  // fclose (fin);
 	  return(-1);
         }
       /*Waiting in an infinite loop*/
@@ -260,7 +269,7 @@ int main(int argc, char* argv[])
 	      if((errno != ECHILD) && (errno != ERESTART) && (errno != EINTR))
                 {
 		  printf("Accept Failed\n");
-		  fclose (fin);
+		  // fclose (fin);
 		  return (-1);
                 }
             }
@@ -270,14 +279,14 @@ int main(int argc, char* argv[])
 	  receiveFile(requestSocket, fileName, getSize(fileName), directory);
 	  //shutdown initiated, not necessary
 	  shutdown(requestSocket, 2);
-	  fclose (fin);
+	  // fclose (fin);
 	  return (0);
         }
     }
 
 
 
-  fclose (fin);
+  // fclose (fin);
   return 0;
 }
 
@@ -398,45 +407,45 @@ int getSize (char* str)
   return count-1;
 }
 
-int findMap (unsigned char* MD5sum, char* fileName) 
-{
-  FILE *fin;
-  fin = fopen ("name-md5sum-map","r");
-  while (!feof(fin)) {
-    char tempMD5sum[16];
-    char tempFileName[100];
-    int currentCount = 0;
-    int len;
-    char temp;
-    int status = 0;
-    while(1)
-      {
-	temp = fgetc(fin);
-	if(temp == EOF || temp == '\n')
-	  break;  
-	if (status == 1) {
-	  tempMD5sum[currentCount - len] = temp;
-	}
+/* int findMap (unsigned char* MD5sum, char* fileName)  */
+/* { */
+/*   FILE *fin; */
+/*   fin = fopen ("name-md5sum-map","r"); */
+/*   while (!feof(fin)) { */
+/*     char tempMD5sum[16]; */
+/*     char tempFileName[100]; */
+/*     int currentCount = 0; */
+/*     int len; */
+/*     char temp; */
+/*     int status = 0; */
+/*     while(1) */
+/*       { */
+/* 	temp = fgetc(fin); */
+/* 	if(temp == EOF || temp == '\n') */
+/* 	  break;   */
+/* 	if (status == 1) { */
+/* 	  tempMD5sum[currentCount - len] = temp; */
+/* 	} */
 	
-	if (temp == '\t') {
-	  status = 1;
-	  tempFileName[currentCount] = '\0';
-	  len = currentCount + 1;
-	}
-	if (status == 0) {
-	  tempFileName[currentCount] = temp;
-	}
-	currentCount++;
-      }
-    if(temp == EOF)
-      break;
+/* 	if (temp == '\t') { */
+/* 	  status = 1; */
+/* 	  tempFileName[currentCount] = '\0'; */
+/* 	  len = currentCount + 1; */
+/* 	} */
+/* 	if (status == 0) { */
+/* 	  tempFileName[currentCount] = temp; */
+/* 	} */
+/* 	currentCount++; */
+/*       } */
+/*     if(temp == EOF) */
+/*       break; */
     
-    if (strcmp (tempFileName, fileName) == 0) {
-      memcpy (MD5sum, tempMD5sum, 16);
-      fclose (fin);
-      return 1;
-    }
-  }
-  fclose (fin);
-  return -1;
-}
+/*     if (strcmp (tempFileName, fileName) == 0) { */
+/*       memcpy (MD5sum, tempMD5sum, 16); */
+/*       fclose (fin); */
+/*       return 1; */
+/*     } */
+/*   } */
+/*   fclose (fin); */
+/*   return -1; */
+/* } */
