@@ -7,4 +7,4 @@ server:	server.c md5c.c mddriver.c
 doc:
 	doxygen
 clean:
-	rm -rf user server *.o
+	rm -rf html/ latex/ user server *.o
