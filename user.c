@@ -22,9 +22,9 @@
 
 int receiveFile(int socketD, char* fileName, int fileNameSize, char* dir);
 int sendFile(int socketD, char fileName[50], int fileNameSize);
-void extractFileName(char* justName, int* fileNameLength, char* fileName, int fileNameSize);
+// void extractFileName(char* justName, int* fileNameLength, char* fileName, int fileNameSize);
 int getSize (char* str);
-int findMap (unsigned char* MD5sum, char* fileName);
+// int findMap (unsigned char* MD5sum, char* fileName);
 
 int main(int argc, char* argv[])
 {
